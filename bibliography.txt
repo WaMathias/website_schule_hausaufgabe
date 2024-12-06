@@ -1,0 +1,3 @@
+ https://sebhastian.com/read-csv-javascript/
+ https://code-boxx.com/display-csv-table-javascript/
+https://www.delftstack.com/de/howto/javascript/csv-to-array-in-javascript/

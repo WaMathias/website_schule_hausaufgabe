@@ -1,0 +1,115 @@
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KBW</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    img {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
+    .qrcode {
+      margin-top: 20px;
+    }
+    select {
+      font-size: 16px;
+      padding: 5px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<h1>KBW</h1>
+
+<label for="dropdown1">Wählen Sie einen Schüler aus:</label>
+<select id="dropdown1" onchange="checkBothSelections()">
+  <option value="" disabled selected>Bitte wählen...</option>
+</select>
+
+<label for="dropdown2">Wählen Sie die Zeit aus:</label>
+<select id="dropdown2" onchange="checkBothSelections()">
+  <option value="" disabled selected>Bitte wählen...</option>
+</select>
+
+<div id="qrcode" class="qrcode"></div>
+
+<script>
+  function populateDropdown(dropdownId, data) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.innerHTML = ''; // clear dropdown
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Bitte wählen...';
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    dropdown.appendChild(defaultOption);
+
+    // Add all data rows to dropdown
+    data.forEach(row => {
+      const option = document.createElement('option');
+      option.value = row.trim();
+      option.textContent = row.trim();
+      dropdown.appendChild(option);
+    });
+  }
+
+  // Fetch data for students
+  fetch('data.csv'
+  )
+    .then(response => response.text())
+    .then(csvData => {
+      const rows = csvData.split("\n").map(row => row.trim()).filter(row => row !== '');
+      populateDropdown('dropdown1', rows);
+    })
+    .catch(error => console.error('Fehler beim Laden der CSV:', error));
+
+  // Hardcoded times
+  const times = [
+    "8:00 - 9:30",
+    "9:45 - 11:15",
+    "11:30 - 13:00",
+    "14:00 - 15:30",
+    "15:45 - 17:15"
+  ];
+  populateDropdown('dropdown2', times);
+
+  // Check, if both dropdowns have a selection
+  function checkBothSelections() {
+    const dropdown1 = document.getElementById('dropdown1');
+    const dropdown2 = document.getElementById('dropdown2');
+
+    const value1 = dropdown1.value;
+    const value2 = dropdown2.value;
+
+    // Only generate QR code, if both have values
+    if (value1 && value2) {
+      const qrCodeContainer = document.getElementById('qrcode');
+      qrCodeContainer.innerHTML = ''; // Clear any previous QR code
+
+      const qrText = value1 + ' - ' + value2; // Combine values for QR code
+      new QRCode(qrCodeContainer, {
+        text: qrText,
+        width: 128,
+        height: 128,
+      });
+    } else {
+      const qrCodeContainer = document.getElementById('qrcode');
+      qrCodeContainer.innerHTML = ''; // Clear QR code, if not both selected
+    }
+  }
+</script>
+
+</body>
+</html>
+
